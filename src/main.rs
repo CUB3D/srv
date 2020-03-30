@@ -1,10 +1,10 @@
 #![feature(async_closure)]
 
-use actix_web::{HttpServer, App, HttpResponse, Error, HttpRequest};
+use actix_web::{HttpServer, App, Error};
 use actix_files::{Files, NamedFile};
 use actix_web::middleware::{Logger, Compress, NormalizePath};
-use actix_web::web::{resource, Data};
-use std::path::Path;
+
+
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use std::io::Read;
 use actix_web::http::{HeaderName, HeaderValue};
@@ -23,7 +23,7 @@ async fn fallback(
     let data = NamedFile::open(&fullpath).
         map(| mut x | {
             let mut str = String::new();
-            x.read_to_string(&mut str);
+            x.read_to_string(&mut str).expect(format!("Failed to read file {}", fullpath).as_str());
             str
         })
         .unwrap_or("<body><h1>404 file not found</h1></body>".to_string());
