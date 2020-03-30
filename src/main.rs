@@ -35,6 +35,9 @@ async fn fallback(req: ServiceRequest) -> Result<ServiceResponse, Error> {
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
+    env_logger::init();
+
+
     let args: Vec<_> = std::env::args().collect();
     let root_dir = args.get(1).unwrap_or(&".".to_string()).clone();
 
