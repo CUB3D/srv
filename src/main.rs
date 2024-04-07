@@ -3,7 +3,7 @@ use actix_web::middleware::{Compress, Logger, NormalizePath};
 use actix_web::{App, Error, HttpServer};
 
 use actix_web::dev::{ServiceRequest, ServiceResponse};
-use actix_web::http::{HeaderName, HeaderValue};
+use actix_web::http::header::{HeaderName, HeaderValue};
 use std::io::Read;
 
 async fn fallback(req: ServiceRequest) -> Result<ServiceResponse, Error> {
@@ -12,14 +12,14 @@ async fn fallback(req: ServiceRequest) -> Result<ServiceResponse, Error> {
     let root_dir = args.get(1).unwrap_or(&".".to_string()).clone();
 
     // Remove first slash
-    let path = req.path().replacen("/", "", 1);
-    let fullpath = format!("{}/{}.html", root_dir, path);
+    let path = req.path().replacen('/', "", 1);
+    let fullpath = format!("{root_dir}/{path}.html");
 
     let data = NamedFile::open(&fullpath)
         .map(|mut x| {
             let mut str = String::new();
             x.read_to_string(&mut str)
-                .expect(format!("Failed to read file {}", fullpath).as_str());
+                .unwrap_or_else(|_| panic!("Failed to read file {fullpath}"));
             str
         })
         .unwrap_or("<body><h1>404 file not found</h1></body>".to_string());
@@ -30,18 +30,17 @@ async fn fallback(req: ServiceRequest) -> Result<ServiceResponse, Error> {
         HeaderName::from_static("content-type"),
         HeaderValue::from_static("text/html"),
     );
-    Ok(res)
+    Ok(res.map_into_boxed_body())
 }
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
 
-
     let args: Vec<_> = std::env::args().collect();
     let root_dir = args.get(1).unwrap_or(&".".to_string()).clone();
 
-    println!("Serving {} on 0.0.0.0:8080", root_dir);
+    println!("Serving {root_dir} on 0.0.0.0:8080");
 
     HttpServer::new(move || {
         App::new()

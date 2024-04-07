@@ -2,13 +2,13 @@
 name = "srv"
 version = "0.1.0"
 authors = ["CUB3D <callumthom11@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "2.0"
-actix-files = "0.2"
-actix-rt = "1.0"
+actix-web = "4.5.1"
+actix-files = "0.6.5"
+actix-rt = "2.9.0"
 
-env_logger = "0.7"
+env_logger = "0.11.3"
